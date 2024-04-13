@@ -7,6 +7,13 @@ import {MatSidenavModule} from '@angular/material/sidenav';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatButtonModule} from '@angular/material/button';
 import {MatTableModule} from '@angular/material/table';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import {MatSnackBarModule} from '@angular/material/snack-bar';
+import {MatPaginatorModule} from '@angular/material/paginator';
+import { MatSortModule } from '@angular/material/sort';
+import {MatDialogModule} from '@angular/material/dialog';
+import {MatGridListModule} from '@angular/material/grid-list';
 
 @NgModule({
   declarations: [],
@@ -20,7 +27,14 @@ import {MatTableModule} from '@angular/material/table';
     MatSidenavModule,
     MatDividerModule,
     MatButtonModule,
-    MatTableModule
+    MatTableModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSnackBarModule,
+    MatPaginatorModule,
+    MatSortModule,
+    MatDialogModule,
+    MatGridListModule
   ]
 })
 export class MaterialModule { }
