@@ -1,4 +1,4 @@
-<mat-horizontal-stepper>
+<mat-horizontal-stepper #stepper>
 
     <mat-step>
         <ng-template matStepLabel>Principal</ng-template>
@@ -118,14 +118,30 @@
 
         <form [formGroup]="secondFormGroup">
 
+            <mat-grid-list cols="10">
+                @for (n of consultArray; track $index) {
+                    <mat-grid-tile [ngClass]="{'consultCSS' : consultSelected === n}" (click)="selectConsult(n)" >{{n}}</mat-grid-tile>
+                }
+            </mat-grid-list>
+
             <button mat-raised-button class="fixedLeft"  type="button" style="float: left;" matStepperPrevious>Previous</button>
-            <button mat-raised-button class="fixedRigth" color="primary" type="button" style="float: right;" matStepperNext>Next</button>
+            <button mat-raised-button class="fixedRigth" color="primary" type="button" style="float: right;" (click)="nextManuelStep()">Next</button>
 
         </form>
     </mat-step>
 
     <mat-step>
         <ng-template matStepLabel>Review</ng-template>
+
+        <h3>Specialty: {{f['specialty']?.value?.nameSpecialty}}</h3>
+        <h3>Patient: {{f['patient']?.value?.firstName + ' ' + f['patient']?.value?.lastName}}</h3>
+        @if (medicSelected) {
+            <h3>Medic: {{medicSelected.primaryName + ' ' + medicSelected.surname}}</h3>
+        }
+        <h3>Consult Number: {{'C' + consultSelected}}</h3>
+
+        <button mat-raised-button class="fixedLeft"  type="button" style="float: left;" matStepperPrevious>Previous</button>
+        <button mat-raised-button type="button" color="primary" (click)="save()">Save</button>
     </mat-step>
 
 </mat-horizontal-stepper>

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { MaterialModule } from '../../material/material.module';
 import { Form, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { PatientService } from '../../services/patient.service';
@@ -14,6 +14,11 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Medic } from '../../model/medic';
 import { MedicService } from '../../services/medic.service';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
+import { MatStepper } from '@angular/material/stepper';
+import { Consult } from '../../model/consult';
+import { format, formatISO } from 'date-fns';
+import { ConsultListExamDTOI } from '../../model/consultListExamDTOI';
+import { ConsultService } from '../../services/consult.service';
 
 @Component({
   selector: 'app-consult-wizard',
@@ -38,8 +43,12 @@ export class ConsultWizardComponent implements OnInit{
   examsSelected: Exam[] = [];
 
   examControl: FormControl = new FormControl();
+  consultArray: number[] = [];
 
   medicSelected: Medic;
+  consultSelected: number;
+
+  @ViewChild('stepper') stepper: MatStepper;
   
   constructor(
     private formBuilder: FormBuilder,
@@ -47,6 +56,7 @@ export class ConsultWizardComponent implements OnInit{
     private specialtyService: SpecialtyService,
     private examService: ExamService,
     private medicService: MedicService,
+    private consultService: ConsultService,
     private _snackBar: MatSnackBar
   ){}
 
@@ -65,6 +75,10 @@ export class ConsultWizardComponent implements OnInit{
       this.loadInitialData();
 
       this.examsFiltered$ = this.examControl.valueChanges.pipe(map(val => this.filterExams(val)));
+
+      for(let i = 1; i <= 100; i++){
+        this.consultArray.push(i);
+      }
   }
 
   loadInitialData(){
@@ -118,5 +132,54 @@ export class ConsultWizardComponent implements OnInit{
 
   selectMedic(m: Medic){
     this.medicSelected = m;
+  }
+
+  selectConsult(n: number){
+    this.consultSelected = n;
+  }
+
+  nextManuelStep(){
+    if(this.consultSelected > 0){
+      //sgte paso
+      this.stepper.next();
+    }else{
+      this._snackBar.open('Please select a consult number', 'INFO', {duration: 2000});
+    }
+  }
+
+  get f(){
+    return this.firstFormGroup.controls;
+  }
+
+  save(){
+    const consult = new Consult();
+    consult.patient = this.firstFormGroup.value['patient'];
+    consult.specialty = this.firstFormGroup.value['specialty'];
+    consult.medic = this.medicSelected;
+    consult.details = this.details;
+    consult.numConsult = `C${this.consultSelected}`;        
+    consult.consultDate = format(this.firstFormGroup.value['consultDate'], "yyyy-MM-dd'T'HH:mm:ss");    
+    const dto: ConsultListExamDTOI = {
+      consult: consult,
+      lstExam: this.examsSelected
+    };
+
+    this.consultService.saveTransactional(dto).subscribe( ()=> {
+      this._snackBar.open("CREATED!", 'INFO', { duration: 2000});
+
+      setTimeout( ()=> {
+        this.cleanControls();
+      }, 2000);
+    });   
+  }
+
+  cleanControls(){
+   this.firstFormGroup.reset();
+   this.secondFormGroup.reset();
+   this.stepper.reset();
+   this.details = [];
+   this.examsSelected = [];
+   this.consultSelected = 0;
+   this.medicSelected = null;
   }
 }
